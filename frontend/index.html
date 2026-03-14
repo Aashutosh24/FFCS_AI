@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FFCS AI Timetable Planner</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <!-- ── Header ─────────────────────────────────────────────────────── -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-icon">📅</span>
+                <span class="logo-text">FFCS<span class="logo-accent"> AI</span> Planner</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#upload-section">Upload</a>
+                <a href="#courses-section">Courses</a>
+                <a href="#results-section">Results</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- ── Hero ───────────────────────────────────────────────────── -->
+        <section class="hero">
+            <h1>Generate Your Perfect Timetable</h1>
+            <p class="hero-sub">
+                Upload your registration screenshot or enter slots manually.
+                Our AI extracts your options and finds the best conflict-free schedules.
+            </p>
+        </section>
+
+        <!-- ── Step 1 – Upload ────────────────────────────────────────── -->
+        <section id="upload-section" class="card">
+            <div class="card-header">
+                <span class="step-badge">1</span>
+                <h2>Upload Registration Screenshot <span class="optional-tag">(optional)</span></h2>
+            </div>
+            <div class="card-body">
+                <div
+                    id="drop-zone"
+                    class="drop-zone"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Click or drag and drop a registration screenshot here"
+                >
+                    <span class="drop-icon">🖼️</span>
+                    <p>Drag &amp; drop your screenshot here, or <strong>click to browse</strong></p>
+                    <p class="drop-hint">Supported: JPEG, PNG, WEBP, BMP</p>
+                    <input type="file" id="image-input" accept="image/*" hidden />
+                </div>
+
+                <div id="preview-area" class="preview-area hidden">
+                    <img id="preview-img" src="" alt="Preview" />
+                    <button id="remove-image-btn" class="btn btn-ghost btn-sm" type="button">✕ Remove</button>
+                </div>
+
+                <div id="ocr-status" class="ocr-status hidden">
+                    <span class="spinner"></span>
+                    <span id="ocr-status-text">Processing with OCR…</span>
+                </div>
+
+                <div id="ocr-result" class="ocr-result hidden">
+                    <h4>Detected Slot Groups</h4>
+                    <p class="hint-text">Review detected slots below. Edit or add more courses in Step 2.</p>
+                    <ul id="detected-slots-list" class="detected-slots-list"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Step 2 – Course Editor ─────────────────────────────────── -->
+        <section id="courses-section" class="card">
+            <div class="card-header">
+                <span class="step-badge">2</span>
+                <h2>Define Courses &amp; Slot Options</h2>
+            </div>
+            <div class="card-body">
+                <p class="hint-text">
+                    Add each course with its available slot options.
+                    Each option is a <code>+</code>-separated slot string like <code>C1+TCC1</code> or <code>L26+L27</code>.
+                </p>
+
+                <div id="courses-list" class="courses-list"></div>
+
+                <button id="add-course-btn" class="btn btn-secondary" type="button">+ Add Course</button>
+
+                <!-- Preferences -->
+                <div class="preferences-box">
+                    <h3>Optimization Preferences</h3>
+                    <div class="prefs-grid">
+                        <label class="pref-item">
+                            <input type="checkbox" id="pref-morning" />
+                            <span>☀️ Prefer morning classes</span>
+                        </label>
+                        <label class="pref-item">
+                            <input type="checkbox" id="pref-evening" />
+                            <span>🌙 Prefer afternoon/evening classes</span>
+                        </label>
+                        <label class="pref-item">
+                            <input type="checkbox" id="pref-minimize-breaks" checked />
+                            <span>⏱️ Minimize break gaps</span>
+                        </label>
+                        <label class="pref-item pref-free-day">
+                            <span>📆 Free day preference:</span>
+                            <select id="pref-free-day">
+                                <option value="">None</option>
+                                <option value="MON">Monday</option>
+                                <option value="TUE">Tuesday</option>
+                                <option value="WED">Wednesday</option>
+                                <option value="THU">Thursday</option>
+                                <option value="FRI">Friday</option>
+                                <option value="SAT">Saturday</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="generate-row">
+                    <button id="generate-btn" class="btn btn-primary btn-lg" type="button">
+                        ✨ Generate Best Timetables
+                    </button>
+                    <span id="generate-status" class="generate-status"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Step 3 – Results ───────────────────────────────────────── -->
+        <section id="results-section" class="card hidden">
+            <div class="card-header">
+                <span class="step-badge">3</span>
+                <h2>Best Timetables</h2>
+            </div>
+            <div class="card-body">
+                <div id="results-summary" class="results-summary"></div>
+
+                <!-- Schedule tabs -->
+                <div id="schedule-tabs" class="schedule-tabs"></div>
+
+                <!-- Timetable grid -->
+                <div id="timetable-wrapper" class="timetable-wrapper">
+                    <div id="timetable-grid" class="timetable-grid"></div>
+                </div>
+
+                <!-- Selected schedule details -->
+                <div id="schedule-detail" class="schedule-detail hidden">
+                    <h4>Course Details</h4>
+                    <table id="schedule-detail-table" class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Slots</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="results-actions">
+                    <button id="download-btn" class="btn btn-secondary" type="button">⬇ Download PNG</button>
+                    <button id="pin-btn" class="btn btn-ghost" type="button">📌 Pin Favourite</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Pinned schedules ───────────────────────────────────────── -->
+        <section id="pinned-section" class="card hidden">
+            <div class="card-header">
+                <span class="step-badge">★</span>
+                <h2>Pinned Schedules</h2>
+            </div>
+            <div class="card-body">
+                <div id="pinned-list" class="pinned-list"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>FFCS AI Planner · Built with ❤️ for VIT students</p>
+    </footer>
+
+    <!-- Templates -->
+    <template id="course-row-template">
+        <div class="course-row" data-course-id="">
+            <div class="course-row-header">
+                <input
+                    type="text"
+                    class="course-name-input input"
+                    placeholder="Course name (e.g. Computer Networks)"
+                    aria-label="Course name"
+                />
+                <button class="btn btn-ghost btn-sm remove-course-btn" type="button">✕</button>
+            </div>
+            <div class="options-list"></div>
+            <button class="btn btn-ghost btn-sm add-option-btn" type="button">+ Add slot option</button>
+        </div>
+    </template>
+
+    <template id="option-row-template">
+        <div class="option-row">
+            <input
+                type="text"
+                class="option-input input"
+                placeholder="e.g. C1+TCC1"
+                aria-label="Slot option"
+            />
+            <button class="btn btn-ghost btn-sm remove-option-btn" type="button">✕</button>
+        </div>
+    </template>
+
+    <script src="timetableRenderer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

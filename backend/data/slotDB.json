@@ -1,0 +1,142 @@
+{
+  "A1": [
+    { "day": "TUE", "period": 1, "type": "theory" },
+    { "day": "SAT", "period": 4, "type": "theory" }
+  ],
+  "A2": [
+    { "day": "TUE", "period": 7, "type": "theory" },
+    { "day": "THU", "period": 8, "type": "theory" }
+  ],
+  "B1": [
+    { "day": "TUE", "period": 2, "type": "theory" },
+    { "day": "WED", "period": 4, "type": "theory" }
+  ],
+  "B2": [
+    { "day": "TUE", "period": 8, "type": "theory" },
+    { "day": "WED", "period": 9, "type": "theory" }
+  ],
+  "C1": [
+    { "day": "THU", "period": 1, "type": "theory" },
+    { "day": "SAT", "period": 2, "type": "theory" }
+  ],
+  "C2": [
+    { "day": "THU", "period": 7, "type": "theory" },
+    { "day": "FRI", "period": 6, "type": "theory" }
+  ],
+  "D1": [
+    { "day": "TUE", "period": 4, "type": "theory" },
+    { "day": "WED", "period": 1, "type": "theory" }
+  ],
+  "D2": [
+    { "day": "WED", "period": 6, "type": "theory" },
+    { "day": "SAT", "period": 6, "type": "theory" }
+  ],
+  "E1": [
+    { "day": "WED", "period": 3, "type": "theory" },
+    { "day": "SAT", "period": 1, "type": "theory" }
+  ],
+  "E2": [
+    { "day": "WED", "period": 8, "type": "theory" },
+    { "day": "SAT", "period": 7, "type": "theory" }
+  ],
+  "F1": [
+    { "day": "WED", "period": 2, "type": "theory" },
+    { "day": "FRI", "period": 3, "type": "theory" }
+  ],
+  "F2": [
+    { "day": "TUE", "period": 6, "type": "theory" },
+    { "day": "FRI", "period": 9, "type": "theory" }
+  ],
+  "G1": [
+    { "day": "TUE", "period": 3, "type": "theory" },
+    { "day": "SAT", "period": 3, "type": "theory" }
+  ],
+  "G2": [
+    { "day": "TUE", "period": 9, "type": "theory" },
+    { "day": "WED", "period": 7, "type": "theory" }
+  ],
+  "TA1": [{ "day": "FRI", "period": 2, "type": "theory" }],
+  "TA2": [{ "day": "FRI", "period": 8, "type": "theory" }],
+  "TB1": [{ "day": "FRI", "period": 1, "type": "theory" }],
+  "TB2": [{ "day": "FRI", "period": 7, "type": "theory" }],
+  "TC1": [{ "day": "TUE", "period": 3, "type": "theory" }],
+  "TC2": [{ "day": "TUE", "period": 9, "type": "theory" }],
+  "TD1": [{ "day": "THU", "period": 2, "type": "theory" }],
+  "TD2": [{ "day": "THU", "period": 9, "type": "theory" }],
+  "TE1": [{ "day": "FRI", "period": 4, "type": "theory" }],
+  "TE2": [{ "day": "THU", "period": 6, "type": "theory" }],
+  "TF1": [{ "day": "SAT", "period": 3, "type": "theory" }],
+  "TF2": [{ "day": "WED", "period": 7, "type": "theory" }],
+  "TG1": [{ "day": "THU", "period": 2, "type": "theory" }],
+  "TG2": [{ "day": "THU", "period": 9, "type": "theory" }],
+  "TAA1": [{ "day": "THU", "period": 3, "type": "theory" }],
+  "TAA2": [{ "day": "SAT", "period": 8, "type": "theory" }],
+  "TBB1": [{ "day": "THU", "period": 4, "type": "theory" }],
+  "TBB2": [{ "day": "SAT", "period": 9, "type": "theory" }],
+  "TCC1": [{ "day": "FRI", "period": 0, "type": "theory" }],
+  "TCC2": [{ "day": "WED", "period": 10, "type": "theory" }],
+  "TDD1": [{ "day": "SAT", "period": 0, "type": "theory" }],
+  "TDD2": [{ "day": "TUE", "period": 10, "type": "theory" }],
+  "TEE1": [{ "day": "THU", "period": 0, "type": "theory" }],
+  "TEE2": [{ "day": "FRI", "period": 10, "type": "theory" }],
+  "TFF1": [{ "day": "TUE", "period": 0, "type": "theory" }],
+  "TFF2": [{ "day": "SAT", "period": 10, "type": "theory" }],
+  "TGG1": [{ "day": "WED", "period": 0, "type": "theory" }],
+  "TGG2": [{ "day": "THU", "period": 10, "type": "theory" }],
+  "SC1": [{ "day": "WED", "period": 8, "type": "theory" }],
+  "SC2": [{ "day": "WED", "period": 3, "type": "theory" }],
+  "SD1": [{ "day": "SAT", "period": 7, "type": "theory" }],
+  "SD2": [{ "day": "FRI", "period": 4, "type": "theory" }],
+  "SE1": [{ "day": "THU", "period": 6, "type": "theory" }],
+  "SE2": [{ "day": "SAT", "period": 1, "type": "theory" }],
+  "L1":  [{ "day": "TUE", "period": 0, "type": "lab" }],
+  "L2":  [{ "day": "TUE", "period": 1, "type": "lab" }],
+  "L3":  [{ "day": "TUE", "period": 2, "type": "lab" }],
+  "L4":  [{ "day": "TUE", "period": 3, "type": "lab" }],
+  "L5":  [{ "day": "TUE", "period": 4, "type": "lab" }],
+  "L31": [{ "day": "TUE", "period": 6, "type": "lab" }],
+  "L32": [{ "day": "TUE", "period": 7, "type": "lab" }],
+  "L33": [{ "day": "TUE", "period": 8, "type": "lab" }],
+  "L34": [{ "day": "TUE", "period": 9, "type": "lab" }],
+  "L35": [{ "day": "TUE", "period": 10, "type": "lab" }],
+  "L7":  [{ "day": "WED", "period": 0, "type": "lab" }],
+  "L8":  [{ "day": "WED", "period": 1, "type": "lab" }],
+  "L9":  [{ "day": "WED", "period": 2, "type": "lab" }],
+  "L10": [{ "day": "WED", "period": 3, "type": "lab" }],
+  "L11": [{ "day": "WED", "period": 4, "type": "lab" }],
+  "L37": [{ "day": "WED", "period": 6, "type": "lab" }],
+  "L38": [{ "day": "WED", "period": 7, "type": "lab" }],
+  "L39": [{ "day": "WED", "period": 8, "type": "lab" }],
+  "L40": [{ "day": "WED", "period": 9, "type": "lab" }],
+  "L41": [{ "day": "WED", "period": 10, "type": "lab" }],
+  "L13": [{ "day": "THU", "period": 0, "type": "lab" }],
+  "L14": [{ "day": "THU", "period": 1, "type": "lab" }],
+  "L15": [{ "day": "THU", "period": 2, "type": "lab" }],
+  "L16": [{ "day": "THU", "period": 3, "type": "lab" }],
+  "L17": [{ "day": "THU", "period": 4, "type": "lab" }],
+  "L43": [{ "day": "THU", "period": 6, "type": "lab" }],
+  "L44": [{ "day": "THU", "period": 7, "type": "lab" }],
+  "L45": [{ "day": "THU", "period": 8, "type": "lab" }],
+  "L46": [{ "day": "THU", "period": 9, "type": "lab" }],
+  "L47": [{ "day": "THU", "period": 10, "type": "lab" }],
+  "L19": [{ "day": "FRI", "period": 0, "type": "lab" }],
+  "L20": [{ "day": "FRI", "period": 1, "type": "lab" }],
+  "L21": [{ "day": "FRI", "period": 2, "type": "lab" }],
+  "L22": [{ "day": "FRI", "period": 3, "type": "lab" }],
+  "L23": [{ "day": "FRI", "period": 4, "type": "lab" }],
+  "L49": [{ "day": "FRI", "period": 6, "type": "lab" }],
+  "L50": [{ "day": "FRI", "period": 7, "type": "lab" }],
+  "L51": [{ "day": "FRI", "period": 8, "type": "lab" }],
+  "L52": [{ "day": "FRI", "period": 9, "type": "lab" }],
+  "L53": [{ "day": "FRI", "period": 10, "type": "lab" }],
+  "L25": [{ "day": "SAT", "period": 0, "type": "lab" }],
+  "L26": [{ "day": "SAT", "period": 1, "type": "lab" }],
+  "L27": [{ "day": "SAT", "period": 2, "type": "lab" }],
+  "L28": [{ "day": "SAT", "period": 3, "type": "lab" }],
+  "L29": [{ "day": "SAT", "period": 4, "type": "lab" }],
+  "L55": [{ "day": "SAT", "period": 6, "type": "lab" }],
+  "L56": [{ "day": "SAT", "period": 7, "type": "lab" }],
+  "L57": [{ "day": "SAT", "period": 8, "type": "lab" }],
+  "L58": [{ "day": "SAT", "period": 9, "type": "lab" }],
+  "L59": [{ "day": "SAT", "period": 10, "type": "lab" }]
+}
