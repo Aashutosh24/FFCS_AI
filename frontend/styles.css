@@ -111,12 +111,6 @@ body {
     font-weight: 700; font-size: 0.85rem;
     flex-shrink: 0;
 }
-.optional-tag {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 400;
-    margin-left: 4px;
-}
 
 /* ── Buttons ──────────────────────────────────────────────────────────────── */
 .btn {
@@ -197,47 +191,6 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── OCR result ───────────────────────────────────────────────────────────── */
-.ocr-result h4 { font-size: 0.9rem; margin-bottom: 6px; }
-.detected-slots-list {
-    list-style: none;
-    display: flex; flex-wrap: wrap; gap: 8px;
-}
-.detected-slots-list li {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 0.85rem;
-    font-family: monospace;
-    display: flex; align-items: center; gap: 6px;
-}
-.detected-slots-list li .use-slot-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    padding: 2px 7px;
-    font-family: inherit;
-}
-.detected-slots-list li .use-slot-btn:hover { background: var(--accent-h); }
-
-/* ── Courses editor ───────────────────────────────────────────────────────── */
-.courses-list { display: flex; flex-direction: column; gap: 14px; }
-
-.course-row {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    display: flex; flex-direction: column; gap: 10px;
-}
-.course-row-header { display: flex; gap: 8px; align-items: center; }
-.options-list { display: flex; flex-direction: column; gap: 6px; padding-left: 12px; }
-.option-row { display: flex; gap: 8px; align-items: center; }
-
 /* ── Inputs ───────────────────────────────────────────────────────────────── */
 .input {
     background: var(--bg);
@@ -251,8 +204,220 @@ body {
     width: 100%;
 }
 .input:focus { outline: none; border-color: var(--accent); }
-.course-name-input { flex: 1; font-weight: 500; }
-.option-input { flex: 1; font-family: monospace; }
+
+/* ── OCR Review – Panel A (structured courses) ────────────────────────────── */
+.success-hint { color: var(--success) !important; }
+.error-hint   { color: var(--danger)  !important; }
+
+.ocr-courses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.ocr-course-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ocr-course-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ocr-course-name-input {
+    flex: 1;
+    font-weight: 500;
+}
+
+.course-code-tag {
+    background: rgba(108,99,255,.2);
+    border: 1px solid rgba(108,99,255,.4);
+    color: var(--accent-h);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-family: monospace;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.ocr-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-left: 4px;
+}
+
+/* ── OCR Review – Panel B (slot chips + buckets) ──────────────────────────── */
+.chips-area {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chips-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.slot-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* Generic slot chip */
+.slot-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: monospace;
+    font-size: 0.82rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: default;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* Clickable unassigned chip */
+button.slot-chip.unassigned-chip {
+    cursor: pointer;
+    border-color: var(--accent);
+    color: var(--accent-h);
+    background: rgba(108,99,255,.08);
+}
+button.slot-chip.unassigned-chip:hover {
+    background: rgba(108,99,255,.2);
+}
+
+/* Assigned chip (in chips pool – greyed out) */
+button.slot-chip.assigned-chip {
+    cursor: pointer;
+    opacity: 0.45;
+    border-color: var(--border);
+    color: var(--text-muted);
+    background: var(--surface2);
+    text-decoration: line-through;
+}
+
+/* Chip inside a bucket */
+.slot-chip.bucket-slot-chip {
+    background: rgba(34,197,94,.1);
+    border-color: rgba(34,197,94,.35);
+    color: #86efac;
+    cursor: default;
+}
+
+.chip-remove-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 0 0 2px;
+    opacity: 0.7;
+}
+.chip-remove-btn:hover { opacity: 1; }
+
+/* Course buckets */
+.course-buckets {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.course-bucket {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bucket-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bucket-name-input {
+    flex: 1;
+    font-weight: 500;
+}
+
+.bucket-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 28px;
+}
+
+/* Badge */
+.badge {
+    font-size: 0.75rem;
+    font-family: inherit;
+    padding: 1px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+.badge-warn {
+    background: rgba(245,158,11,.15);
+    border: 1px solid rgba(245,158,11,.4);
+    color: var(--warning);
+}
+.badge-ok {
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.3);
+    color: var(--success);
+}
+
+/* Bucket picker dropdown */
+.bucket-picker {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    overflow: hidden;
+}
+.picker-option {
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.88rem;
+    padding: 9px 14px;
+    text-align: left;
+    transition: background .12s;
+}
+.picker-option:hover {
+    background: var(--surface2);
+    color: var(--accent-h);
+}
 
 /* ── Preferences ──────────────────────────────────────────────────────────── */
 .preferences-box {
@@ -449,3 +614,4 @@ code {
     .prefs-grid { grid-template-columns: 1fr; }
     .timetable-grid { grid-template-columns: 70px repeat(6, 1fr); }
 }
+

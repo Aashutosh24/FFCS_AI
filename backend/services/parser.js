@@ -7,6 +7,13 @@
 const SLOT_PATTERN = /\b(L\d{1,2}|T[A-Z]{1,2}\d|S[A-Z]\d|[A-Z]\d)\b/g;
 
 /**
+ * VIT course-code pattern.
+ * Matches standard theory codes (e.g. CSE1003, PHY1001, MAT2001)
+ * and lab suffixed codes (e.g. CSE1003L, CHE1001P) via the optional trailing letter.
+ */
+const COURSE_CODE_PATTERN = /\b([A-Z]{2,4}\d{4}[A-Z]?)\b/;
+
+/**
  * A compound slot string like "C1+TCC1" or "L26+L27".
  * Returns an array of individual slot strings.
  * @param {string} compound
@@ -28,7 +35,6 @@ function parseCompoundSlot(compound) {
  * @returns {string[]|null} Array of individual slots, or null if no slots found.
  */
 function extractSlotsFromLine(line) {
-    // The slot group is usually the first "word" in the line (before spaces)
     const trimmed = line.trim();
     if (!trimmed) return null;
 
@@ -43,20 +49,21 @@ function extractSlotsFromLine(line) {
 }
 
 /**
- * Parse raw OCR text into a list of course slot option groups.
+ * Parse raw OCR text into structured course data.
  *
- * The OCR output typically has rows like:
- *   C1+TCC1  Mohinder Singh
- *   F2+TF2   Nandha Kumar
- *   L26+L27  Prabha Selvaraj
- *
- * We group consecutive rows that belong to the same course (same faculty block),
- * but since we can't reliably tell course boundaries from OCR alone, we return
- * each distinct slot group as an option. Callers are expected to group options
- * per course via the manual input flow when OCR is insufficient.
+ * Strategy:
+ *  1. Scan lines for VIT course-code headers (e.g. "CSE1003 Computer Networks").
+ *  2. When a header is found, begin a new course group.
+ *  3. Slot rows below a header are collected as options for that course.
+ *  4. If NO course headers are found, return all slot groups ungrouped so the
+ *     frontend can ask the user to organise them.
  *
  * @param {string} rawText
- * @returns {{ rawSlots: string[][], lines: string[] }}
+ * @returns {{
+ *   courses: Array<{ name: string, code: string, options: string[][] }>,
+ *   rawSlots: string[][],
+ *   lines: string[]
+ * }}
  */
 function parseOCRText(rawText) {
     const lines = rawText
@@ -64,18 +71,69 @@ function parseOCRText(rawText) {
         .map(l => l.trim())
         .filter(Boolean);
 
-    const rawSlots = [];
+    const rawSlots = [];      // all detected slot groups (flat)
     const processedLines = [];
 
-    for (const line of lines) {
-        const slots = extractSlotsFromLine(line);
+    // ── Pass 1: collect every slot group and flag course-header lines ──────────
+    const annotated = lines.map(line => {
+        const codeMatch = line.match(COURSE_CODE_PATTERN);
+        const slots     = extractSlotsFromLine(line);
+
         if (slots) {
             rawSlots.push(slots);
             processedLines.push(line);
         }
+
+        return { line, courseCode: codeMatch ? codeMatch[1] : null, slots };
+    });
+
+    // ── Pass 2: build per-course groups when headers were found ────────────────
+    const courseHeaders = annotated.filter(a => a.courseCode && !a.slots);
+
+    const courses = [];
+
+    if (courseHeaders.length > 0) {
+        let currentCourse = null;
+
+        for (const a of annotated) {
+            if (a.courseCode && !a.slots) {
+                // Start of a new course block.
+                // Extract a human-readable name: everything after the code.
+                const nameMatch = a.line.match(
+                    /[A-Z]{2,4}\d{4}[A-Z]?\s*[-–]?\s*(.*)/
+                );
+                const courseName = nameMatch ? nameMatch[1].trim() : a.courseCode;
+
+                currentCourse = {
+                    code: a.courseCode,
+                    name: courseName || a.courseCode,
+                    options: []
+                };
+                courses.push(currentCourse);
+            } else if (a.slots && currentCourse) {
+                // This slot row belongs to the current course.
+                currentCourse.options.push(a.slots);
+            } else if (a.slots && !currentCourse) {
+                // Slot before any course header — make an "Unknown" course.
+                currentCourse = { code: '', name: 'Unknown Course', options: [a.slots] };
+                courses.push(currentCourse);
+            }
+        }
+
+        // Remove courses with no slot options (pure header lines with no data below).
+        return {
+            courses: courses.filter(c => c.options.length > 0),
+            rawSlots,
+            lines: processedLines
+        };
     }
 
-    return { rawSlots, lines: processedLines };
+    // ── No course headers found – return raw slots only ────────────────────────
+    return {
+        courses: [],   // empty → frontend will show grouping UI
+        rawSlots,
+        lines: processedLines
+    };
 }
 
 /**
