@@ -6,8 +6,8 @@ An AI-powered web application that automatically generates the best possible uni
 
 ## 🚀 Features
 
-- **OCR Screenshot Processing** – Upload your registration screenshot and let AI extract slot options automatically
-- **Manual Course Entry** – Add courses and slot options by hand for full control
+- **OCR Screenshot Processing** – Upload your registration screenshot and let AI extract course names and slot options automatically
+- **Smart Course Review** – Detected courses appear as editable cards; if course headers aren't detected, use the slot-chip grouping UI to organise options
 - **Conflict Detection** – Backtracking algorithm with pruning prevents all slot clashes
 - **Smart Optimization** – Schedules ranked by break gaps, class timing preferences, and free day goals
 - **Visual Timetable Grid** – Color-coded grid view (theory = blue, lab = orange)
@@ -94,11 +94,21 @@ Upload a registration screenshot for OCR processing.
 ```json
 {
   "success": true,
-  "rawText": "C1+TCC1 Mohinder Singh\n...",
-  "detectedSlots": [["C1","TCC1"], ["F2","TF2"], ["L26","L27"]],
-  "lines": ["C1+TCC1 Mohinder Singh", ...]
+  "rawText": "CSE3001 Computer Networks\nC1+TCC1 Mohinder Singh\n...",
+  "courses": [
+    {
+      "code": "CSE3001",
+      "name": "Computer Networks",
+      "options": [["C1","TCC1"], ["F2","TF2"]]
+    }
+  ],
+  "detectedSlots": [["C1","TCC1"], ["F2","TF2"]],
+  "lines": ["C1+TCC1 Mohinder Singh", "..."]
 }
 ```
+
+> `courses` is populated when the screenshot contains recognisable VIT course-code headers (e.g. `CSE3001`).
+> If no headers are detected, `courses` is an empty array and the frontend shows the slot-chip grouping UI.
 
 ---
 

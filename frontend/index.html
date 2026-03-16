@@ -16,7 +16,7 @@
             </div>
             <nav class="nav-links">
                 <a href="#upload-section">Upload</a>
-                <a href="#courses-section">Courses</a>
+                <a href="#review-section">Review</a>
                 <a href="#results-section">Results</a>
             </nav>
         </div>
@@ -28,16 +28,16 @@
         <section class="hero">
             <h1>Generate Your Perfect Timetable</h1>
             <p class="hero-sub">
-                Upload your registration screenshot or enter slots manually.
-                Our AI extracts your options and finds the best conflict-free schedules.
+                Upload your FFCS registration screenshot. Our AI reads all your course slot
+                options and finds the best conflict-free schedule automatically.
             </p>
         </section>
 
-        <!-- ── Step 1 – Upload ────────────────────────────────────────── -->
+        <!-- ── Step 1 – Upload (REQUIRED) ────────────────────────────── -->
         <section id="upload-section" class="card">
             <div class="card-header">
                 <span class="step-badge">1</span>
-                <h2>Upload Registration Screenshot <span class="optional-tag">(optional)</span></h2>
+                <h2>Upload Registration Screenshot</h2>
             </div>
             <div class="card-body">
                 <div
@@ -48,81 +48,105 @@
                     aria-label="Click or drag and drop a registration screenshot here"
                 >
                     <span class="drop-icon">🖼️</span>
-                    <p>Drag &amp; drop your screenshot here, or <strong>click to browse</strong></p>
+                    <p>Drag &amp; drop your FFCS screenshot here, or <strong>click to browse</strong></p>
                     <p class="drop-hint">Supported: JPEG, PNG, WEBP, BMP</p>
                     <input type="file" id="image-input" accept="image/*" hidden />
                 </div>
 
                 <div id="preview-area" class="preview-area hidden">
                     <img id="preview-img" src="" alt="Preview" />
-                    <button id="remove-image-btn" class="btn btn-ghost btn-sm" type="button">✕ Remove</button>
+                    <button id="remove-image-btn" class="btn btn-ghost btn-sm" type="button">✕ Remove &amp; re-upload</button>
                 </div>
 
                 <div id="ocr-status" class="ocr-status hidden">
                     <span class="spinner"></span>
                     <span id="ocr-status-text">Processing with OCR…</span>
                 </div>
-
-                <div id="ocr-result" class="ocr-result hidden">
-                    <h4>Detected Slot Groups</h4>
-                    <p class="hint-text">Review detected slots below. Edit or add more courses in Step 2.</p>
-                    <ul id="detected-slots-list" class="detected-slots-list"></ul>
-                </div>
             </div>
         </section>
 
-        <!-- ── Step 2 – Course Editor ─────────────────────────────────── -->
-        <section id="courses-section" class="card">
+        <!-- ── Step 2 – OCR Review ────────────────────────────────────── -->
+        <section id="review-section" class="card hidden">
             <div class="card-header">
                 <span class="step-badge">2</span>
-                <h2>Define Courses &amp; Slot Options</h2>
+                <h2>Review Detected Courses</h2>
             </div>
             <div class="card-body">
-                <p class="hint-text">
-                    Add each course with its available slot options.
-                    Each option is a <code>+</code>-separated slot string like <code>C1+TCC1</code> or <code>L26+L27</code>.
-                </p>
 
-                <div id="courses-list" class="courses-list"></div>
-
-                <button id="add-course-btn" class="btn btn-secondary" type="button">+ Add Course</button>
-
-                <!-- Preferences -->
-                <div class="preferences-box">
-                    <h3>Optimization Preferences</h3>
-                    <div class="prefs-grid">
-                        <label class="pref-item">
-                            <input type="checkbox" id="pref-morning" />
-                            <span>☀️ Prefer morning classes</span>
-                        </label>
-                        <label class="pref-item">
-                            <input type="checkbox" id="pref-evening" />
-                            <span>🌙 Prefer afternoon/evening classes</span>
-                        </label>
-                        <label class="pref-item">
-                            <input type="checkbox" id="pref-minimize-breaks" checked />
-                            <span>⏱️ Minimize break gaps</span>
-                        </label>
-                        <label class="pref-item pref-free-day">
-                            <span>📆 Free day preference:</span>
-                            <select id="pref-free-day">
-                                <option value="">None</option>
-                                <option value="MON">Monday</option>
-                                <option value="TUE">Tuesday</option>
-                                <option value="WED">Wednesday</option>
-                                <option value="THU">Thursday</option>
-                                <option value="FRI">Friday</option>
-                                <option value="SAT">Saturday</option>
-                            </select>
-                        </label>
-                    </div>
+                <!-- Sub-panel A: structured courses found by OCR ────────────── -->
+                <div id="structured-panel" class="hidden">
+                    <p class="hint-text success-hint">
+                        ✅ Courses detected from your screenshot. You can rename a course if OCR
+                        misread it, but slot strings come directly from the image.
+                    </p>
+                    <div id="ocr-courses-list" class="ocr-courses-list"></div>
                 </div>
 
-                <div class="generate-row">
-                    <button id="generate-btn" class="btn btn-primary btn-lg" type="button">
-                        ✨ Generate Best Timetables
-                    </button>
-                    <span id="generate-status" class="generate-status"></span>
+                <!-- Sub-panel B: only raw slot groups, no course headers ─────── -->
+                <div id="grouping-panel" class="hidden">
+                    <p class="hint-text">
+                        Slot options were detected but course names could not be read from the
+                        screenshot. Assign each slot chip to a course using the panel below.
+                    </p>
+
+                    <!-- Unassigned slot chips -->
+                    <div class="chips-area">
+                        <h4 class="chips-title">Detected Slots <span id="unassigned-count" class="badge"></span></h4>
+                        <div id="slot-chips" class="slot-chips"></div>
+                    </div>
+
+                    <!-- Course buckets -->
+                    <div id="course-buckets" class="course-buckets"></div>
+                    <button id="add-bucket-btn" class="btn btn-secondary" type="button">+ New Course</button>
+                </div>
+
+                <!-- Sub-panel C: nothing detected ───────────────────────────── -->
+                <div id="no-slots-panel" class="hidden">
+                    <p class="hint-text error-hint">
+                        ⚠️ No slot patterns could be detected in your screenshot. Please try
+                        a clearer, higher-resolution image and re-upload.
+                    </p>
+                    <button id="retry-upload-btn" class="btn btn-secondary" type="button">↑ Re-upload Image</button>
+                </div>
+
+                <!-- Preferences + Generate (shown once something is detected) ── -->
+                <div id="generate-panel" class="hidden">
+                    <div class="preferences-box">
+                        <h3>Optimization Preferences</h3>
+                        <div class="prefs-grid">
+                            <label class="pref-item">
+                                <input type="checkbox" id="pref-morning" />
+                                <span>☀️ Prefer morning classes</span>
+                            </label>
+                            <label class="pref-item">
+                                <input type="checkbox" id="pref-evening" />
+                                <span>🌙 Prefer afternoon/evening classes</span>
+                            </label>
+                            <label class="pref-item">
+                                <input type="checkbox" id="pref-minimize-breaks" checked />
+                                <span>⏱️ Minimize break gaps</span>
+                            </label>
+                            <label class="pref-item pref-free-day">
+                                <span>📆 Free day preference:</span>
+                                <select id="pref-free-day">
+                                    <option value="">None</option>
+                                    <option value="MON">Monday</option>
+                                    <option value="TUE">Tuesday</option>
+                                    <option value="WED">Wednesday</option>
+                                    <option value="THU">Thursday</option>
+                                    <option value="FRI">Friday</option>
+                                    <option value="SAT">Saturday</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="generate-row">
+                        <button id="generate-btn" class="btn btn-primary btn-lg" type="button">
+                            ✨ Generate Best Timetables
+                        </button>
+                        <span id="generate-status" class="generate-status"></span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -183,32 +207,20 @@
         <p>FFCS AI Planner · Built with ❤️ for VIT students</p>
     </footer>
 
-    <!-- Templates -->
-    <template id="course-row-template">
-        <div class="course-row" data-course-id="">
-            <div class="course-row-header">
+    <!-- Template: course bucket (used in grouping panel) -->
+    <template id="bucket-template">
+        <div class="course-bucket" data-bucket-id="">
+            <div class="bucket-header">
                 <input
                     type="text"
-                    class="course-name-input input"
+                    class="bucket-name-input input"
                     placeholder="Course name (e.g. Computer Networks)"
                     aria-label="Course name"
                 />
-                <button class="btn btn-ghost btn-sm remove-course-btn" type="button">✕</button>
+                <button class="btn btn-ghost btn-sm remove-bucket-btn" type="button">✕</button>
             </div>
-            <div class="options-list"></div>
-            <button class="btn btn-ghost btn-sm add-option-btn" type="button">+ Add slot option</button>
-        </div>
-    </template>
-
-    <template id="option-row-template">
-        <div class="option-row">
-            <input
-                type="text"
-                class="option-input input"
-                placeholder="e.g. C1+TCC1"
-                aria-label="Slot option"
-            />
-            <button class="btn btn-ghost btn-sm remove-option-btn" type="button">✕</button>
+            <div class="bucket-slots"></div>
+            <p class="bucket-empty-hint hint-text">Click a slot chip above to add it here</p>
         </div>
     </template>
 
