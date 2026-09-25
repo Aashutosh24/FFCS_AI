@@ -66,7 +66,8 @@ function extractSlotsFromLine(line) {
  * }}
  */
 function parseOCRText(rawText) {
-    const lines = rawText
+    const textStr = typeof rawText === 'string' ? rawText : (rawText && rawText.text ? rawText.text : String(rawText || ''));
+    const lines = textStr
         .split('\n')
         .map(l => l.trim())
         .filter(Boolean);

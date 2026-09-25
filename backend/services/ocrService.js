@@ -1,53 +1,49 @@
-'use strict';
-
-const { createWorker } = require('tesseract.js');
-
-const OCR_TIMEOUT_MS = 120_000; // 2 minutes
-
-// ── Singleton worker ──────────────────────────────────────────────────────────
-// We keep one persistent Tesseract worker so language data is downloaded once
-// (on server start) rather than on every request.  If the initial download
-// fails the promise is reset so the next request gets a fresh attempt.
-
-let initPromise = null;
+const sharp = require("sharp");
+const { createWorker } = require("tesseract.js");
 
 /**
- * Return the singleton Tesseract worker, initialising it on first call.
- * @returns {Promise<import('tesseract.js').Worker>}
+ * Preprocess image for better OCR:
+ * - auto rotate
+ * - grayscale
+ * - normalize contrast
+ * - binarize
  */
-function getWorker() {
-    if (!initPromise) {
-        initPromise = createWorker('eng').catch(err => {
-            // Allow a retry on the next request if initialisation fails.
-            initPromise = null;
-            throw err;
-        });
-    }
-    return initPromise;
+async function preprocessImage(inputPath) {
+  const outputBuffer = await sharp(inputPath)
+    .rotate()
+    .grayscale()
+    .normalize()
+    .sharpen()
+    .threshold(165) // tune 140-190 based on screenshot quality
+    .toBuffer();
+
+  return outputBuffer;
 }
 
 /**
- * Extract text from an image buffer using Tesseract OCR.
- * Throws if OCR takes longer than OCR_TIMEOUT_MS.
- * @param {Buffer} imageBuffer - The uploaded image data.
- * @returns {Promise<string>} Raw extracted text.
+ * OCR using Tesseract.js
  */
-async function extractTextFromImage(imageBuffer) {
-    const worker = await Promise.race([
-        getWorker(),
-        new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Tesseract worker initialisation timed out')), OCR_TIMEOUT_MS)
-        )
-    ]);
+async function extractTextFromImage(inputPath) {
+  const processed = await preprocessImage(inputPath);
 
-    const recognisePromise = worker.recognize(imageBuffer).then(r => r.data.text);
+  const worker = await createWorker("eng");
+  try {
+    // Optional tuning:
+    await worker.setParameters({
+      tessedit_pageseg_mode: "6", // Assume a block of text/table-ish content
+      preserve_interword_spaces: "1",
+    });
 
-    return Promise.race([
-        recognisePromise,
-        new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('OCR recognition timed out after 2 minutes')), OCR_TIMEOUT_MS)
-        )
-    ]);
+    const {
+      data: { text, confidence },
+    } = await worker.recognize(processed);
+
+    return { text, confidence };
+  } finally {
+    await worker.terminate();
+  }
 }
 
-module.exports = { extractTextFromImage };
+module.exports = {
+  extractTextFromImage,
+};

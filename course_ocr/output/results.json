@@ -1,0 +1,158 @@
+[
+  {
+    "source_file": "AGILE_PROGRAM.pdf",
+    "course_code": "CSE3001",
+    "course_name": "Agile Development Process",
+    "component_type": "Embedded Theory and Project",
+    "credit": "4.0",
+    "theory_slots": [
+      {
+        "slot": "F1+TFF1",
+        "venue": "AB2-102",
+        "faculty": "Anurag De",
+        "flags": []
+      },
+      {
+        "slot": "F1+TF1",
+        "venue": "CB-512",
+        "faculty": "Khasim Syed",
+        "flags": []
+      },
+      {
+        "slot": "D2+TD2",
+        "venue": "CB-324",
+        "faculty": "Anurag De",
+        "flags": []
+      },
+      {
+        "slot": "D2+TDD2",
+        "venue": "AB2-G14",
+        "faculty": "Khasim Syed",
+        "flags": []
+      }
+    ],
+    "lab_slots": [],
+    "needs_ocr": true,
+    "pages": 2,
+    "warnings": [],
+    "error": null,
+    "missing_fields": [],
+    "confidence": "ok"
+  },
+  {
+    "source_file": "FRENCH.pdf",
+    "course_code": "FRL1001",
+    "course_name": "Basic French",
+    "component_type": "Theory Only",
+    "credit": "2.0",
+    "theory_slots": [
+      {
+        "slot": "B1",
+        "venue": "CB-501",
+        "faculty": "RITESH RANJAN",
+        "flags": []
+      },
+      {
+        "slot": "A1",
+        "venue": "AB2-112",
+        "faculty": "RITESH RANJAN",
+        "flags": []
+      },
+      {
+        "slot": "E2",
+        "venue": "AB2-212",
+        "faculty": "RITESH RANJAN",
+        "flags": []
+      },
+      {
+        "slot": "F1",
+        "venue": "CB-315",
+        "faculty": "Dheeraj Kumar",
+        "flags": []
+      },
+      {
+        "slot": "G1",
+        "venue": "AB2-214",
+        "faculty": "Chandan Vishwas",
+        "flags": []
+      },
+      {
+        "slot": "B1",
+        "venue": "CB-504",
+        "faculty": "Dheeraj Kumar",
+        "flags": []
+      },
+      {
+        "slot": "C1",
+        "venue": "AB2-212",
+        "faculty": "Chandan Vishwas",
+        "flags": []
+      },
+      {
+        "slot": "C2",
+        "venue": "CB-113",
+        "faculty": "Dheeraj Kumar",
+        "flags": []
+      }
+    ],
+    "lab_slots": [],
+    "needs_ocr": true,
+    "pages": 1,
+    "warnings": [],
+    "error": null,
+    "missing_fields": [],
+    "confidence": "ok"
+  },
+  {
+    "source_file": "GERMAN.pdf",
+    "course_code": "FRL1005",
+    "course_name": "German for Beginners",
+    "component_type": "Theory Only",
+    "credit": "2.0",
+    "theory_slots": [
+      {
+        "slot": "G2",
+        "venue": "AB2-G17",
+        "faculty": "Prof. VISH Dig Crs Faculty-1",
+        "flags": []
+      },
+      {
+        "slot": "A2",
+        "venue": "AB2-G19",
+        "faculty": "VELMALA SHARATH KUMAR",
+        "flags": []
+      },
+      {
+        "slot": "F2",
+        "venue": "AB2-220",
+        "faculty": "VELMALA SHARATH KUMAR",
+        "flags": []
+      },
+      {
+        "slot": "B2",
+        "venue": "CB-423",
+        "faculty": "Prof.VISH Dig Crs Faculty-1",
+        "flags": []
+      },
+      {
+        "slot": "G1",
+        "venue": "AB2-G17",
+        "faculty": "Renuprasad Hemkiran Patki",
+        "flags": []
+      },
+      {
+        "slot": "A2",
+        "venue": "AB2-220",
+        "faculty": "Renuprasad Hemkiran Patki",
+        "flags": []
+      }
+    ],
+    "lab_slots": [],
+    "needs_ocr": true,
+    "pages": 1,
+    "warnings": [],
+    "error": null,
+    "missing_fields": [],
+    "confidence": "ok"
+  }
+]

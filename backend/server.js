@@ -4,12 +4,15 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 const rateLimit = require('express-rate-limit');
 
 const { extractTextFromImage } = require('./services/ocrService');
 const { parseOCRText } = require('./services/parser');
 const { generateSchedules } = require('./services/scheduler');
 const { rankSchedules } = require('./services/optimizer');
+const { runCourseOcr, transformResults, COURSE_OCR_OUT_DIR } = require('./services/courseOcrService');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -53,6 +56,32 @@ const upload = multer({
     }
 });
 
+// ── Multer – disk storage for PDF / ZIP uploads (course_ocr pipeline) ────────
+const pdfUploadDir = path.join(os.tmpdir(), 'ffcs_ai_pdf_uploads');
+if (!fs.existsSync(pdfUploadDir)) fs.mkdirSync(pdfUploadDir, { recursive: true });
+
+const pdfUpload = multer({
+    storage: multer.diskStorage({
+        destination: (_req, _file, cb) => cb(null, pdfUploadDir),
+        filename: (_req, file, cb) => {
+            const ext = path.extname(file.originalname).toLowerCase();
+            cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+        }
+    }),
+    limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB (batch of PDFs as ZIP)
+    fileFilter(_req, file, cb) {
+        const mime = file.mimetype;
+        const ext  = path.extname(file.originalname).toLowerCase();
+        const ok   = mime === 'application/pdf'
+                  || mime === 'application/zip'
+                  || mime === 'application/x-zip-compressed'
+                  || ext === '.pdf'
+                  || ext === '.zip';
+        if (ok) cb(null, true);
+        else cb(new Error('Only PDF or ZIP files are accepted for the course OCR pipeline.'));
+    }
+});
+
 /**
  * Wrap multer so that any multer-level error is returned as JSON
  * instead of Express's default HTML error page.
@@ -82,7 +111,8 @@ app.post('/api/upload', uploadLimiter, uploadSingle('image'), async (req, res) =
             return res.status(400).json({ success: false, error: 'No image file provided.' });
         }
 
-        const rawText = await extractTextFromImage(req.file.buffer);
+        const ocrResult = await extractTextFromImage(req.file.buffer);
+        const rawText = typeof ocrResult === 'string' ? ocrResult : (ocrResult.text || '');
         const { courses, rawSlots, lines } = parseOCRText(rawText);
 
         return res.json({
@@ -147,6 +177,94 @@ app.post('/api/generate', apiLimiter, (req, res) => {
     } catch (err) {
         console.error('Generate error:', err);
         return res.status(500).json({ success: false, error: 'Schedule generation failed.', detail: err.message });
+    }
+});
+
+/**
+ * POST /api/pdf-ocr
+ * Accept one or multiple PDFs, or a ZIP of PDFs, run the course_ocr Python pipeline on them,
+ * and return the structured course extraction results.
+ *
+ * The uploaded files are saved to a temporary folder, the pipeline is run across all files,
+ * and the combined results.json produced in course_ocr/output/ is read and returned.
+ * The course_ocr source code is never modified.
+ *
+ * Form field: "pdfs" (supports single or multiple files)
+ */
+app.post('/api/pdf-ocr', uploadLimiter, (req, res, next) => {
+    pdfUpload.array('pdfs', 50)(req, res, err => {
+        if (err) return res.status(400).json({ success: false, error: err.message });
+        next();
+    });
+}, async (req, res) => {
+    const files = req.files || (req.file ? [req.file] : []);
+    if (!files || files.length === 0) {
+        return res.status(400).json({ success: false, error: 'No PDF or ZIP files provided.' });
+    }
+
+    let inputPath;
+    let tempFolderCreated = null;
+
+    try {
+        // If single ZIP file uploaded, we can pass it directly
+        if (files.length === 1 && path.extname(files[0].originalname).toLowerCase() === '.zip') {
+            inputPath = files[0].path;
+        } else {
+            // For one or more PDFs, copy into a dedicated temp folder
+            tempFolderCreated = path.join(pdfUploadDir, `batch-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+            fs.mkdirSync(tempFolderCreated, { recursive: true });
+
+            for (const file of files) {
+                const dest = path.join(tempFolderCreated, file.originalname);
+                fs.copyFileSync(file.path, dest);
+            }
+            inputPath = tempFolderCreated;
+        }
+
+        const rawResults = await runCourseOcr(inputPath);
+        const courses    = transformResults(rawResults);
+
+        return res.json({
+            success: true,
+            totalFiles: rawResults.length,
+            courses,
+            // Keep output paths in the response for debugging / review.html link
+            outputDir: COURSE_OCR_OUT_DIR,
+        });
+
+    } catch (err) {
+        console.error('PDF OCR error:', err);
+        return res.status(500).json({ success: false, error: err.message });
+    } finally {
+        // Clean up individual uploaded temp files
+        for (const file of files) {
+            if (file.path && fs.existsSync(file.path)) {
+                fs.unlink(file.path, () => {});
+            }
+        }
+        // Clean up temp batch folder
+        if (tempFolderCreated && fs.existsSync(tempFolderCreated)) {
+            fs.rm(tempFolderCreated, { recursive: true, force: true }, () => {});
+        }
+    }
+});
+
+/**
+ * GET /api/pdf-ocr/results
+ * Return the most recently produced results.json without re-running OCR.
+ * Useful when the user has already run the pipeline and wants to reload.
+ */
+app.get('/api/pdf-ocr/results', apiLimiter, (_req, res) => {
+    const resultsPath = path.join(COURSE_OCR_OUT_DIR, 'results.json');
+    if (!fs.existsSync(resultsPath)) {
+        return res.status(404).json({ success: false, error: 'No results.json found. Run the PDF OCR pipeline first.' });
+    }
+    try {
+        const raw     = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+        const courses = transformResults(raw);
+        return res.json({ success: true, totalFiles: raw.length, courses });
+    } catch (e) {
+        return res.status(500).json({ success: false, error: `Could not read results.json: ${e.message}` });
     }
 });
 
