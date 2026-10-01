@@ -113,13 +113,14 @@ app.post('/api/upload', uploadLimiter, uploadSingle('image'), async (req, res) =
 
         const ocrResult = await extractTextFromImage(req.file.buffer);
         const rawText = typeof ocrResult === 'string' ? ocrResult : (ocrResult.text || '');
-        const { courses, rawSlots, lines } = parseOCRText(rawText);
+        const { courses, detectedSlots, rawSlots, lines } = parseOCRText(rawText);
 
         return res.json({
             success: true,
             rawText,
-            courses,        // structured: [{ code, name, options: string[][] }]
-            detectedSlots: rawSlots,
+            courses,        // structured: [{ code, name, slots: string[], options: string[][] }]
+            detectedSlots: detectedSlots || rawSlots.map(s => s.join('+')),
+            rawSlots,
             lines
         });
     } catch (err) {

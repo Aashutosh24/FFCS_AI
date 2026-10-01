@@ -1201,7 +1201,79 @@ function toggleOcrSlot(courseIdx, slotIdx, slotType, btnEl) {
     showToast(`✓ Added ${courseName} [${slotStr}] to timetable!`, 'success');
 }
 
-// Screenshot upload integration (now relative to current origin)
+// 1-Click Toggle Screenshot slot into timetable
+function toggleScreenshotSlot(slotStr, courseCode = '', courseTitle = '', btnEl = null) {
+    if (!slotStr) return;
+    const compoundSlots = slotStr.split('+').map(s => s.trim().toUpperCase());
+    const isLab = compoundSlots.some(s => s.startsWith('L'));
+    const slotType = isLab ? 'lab' : 'theory';
+    const code = courseCode || 'CUSTOM';
+    const title = courseTitle || (courseCode ? courseCode : `Course (${slotStr})`);
+    const key = `SS_${code}_${slotStr}`;
+
+    // If already placed, remove it
+    if (placedOcrSlots.has(key)) {
+        const existingId = placedOcrSlots.get(key);
+        removeCourse(existingId);
+        placedOcrSlots.delete(key);
+        if (btnEl) {
+            btnEl.classList.remove('placed');
+            btnEl.innerHTML = `➕ ${escapeHtml(slotStr)}`;
+        }
+        showToast(`Removed ${title} [${slotStr}] from timetable`, 'info');
+        return;
+    }
+
+    // Validate against slot mappings
+    const unmapped = compoundSlots.filter(s => !slotMappings[s]);
+    if (unmapped.length > 0) {
+        showToast(`Warning: Slot "${unmapped.join(', ')}" is not defined in timetable mappings.`, 'warning');
+    }
+
+    // Check for timetable clashes
+    const clashes = checkForClashes(compoundSlots, slotType, title);
+    if (clashes.length > 0) {
+        showClashAlert(clashes, title, slotStr, slotType);
+        showToast(`Clash detected for ${title} (${slotStr})! Check the clash alert above.`, 'error');
+        return;
+    }
+
+    // Calculate credits
+    let credits = isLab ? 1 : (compoundSlots.length >= 3 ? 4 : (compoundSlots.length === 2 ? 3 : 2));
+
+    const courseItem = {
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        name: title,
+        code: code,
+        slot: slotStr,
+        type: slotType,
+        credits: credits,
+        slots: compoundSlots,
+        faculty: '',
+        venue: ''
+    };
+
+    selectedCourses.push(courseItem);
+    updateTimetable(courseItem);
+    updateSelectedCoursesList();
+    updateStats();
+    hideClashAlert();
+
+    placedOcrSlots.set(key, courseItem.id);
+    if (btnEl) {
+        btnEl.classList.add('placed');
+        btnEl.innerHTML = `✓ ${escapeHtml(slotStr)} Added`;
+    }
+
+    showToast(`✓ Added ${title} [${slotStr}] to timetable!`, 'success');
+}
+
+// Backwards compatibility alias
+function addDetectedSlot(slotStr) {
+    toggleScreenshotSlot(slotStr);
+}
+
+// Screenshot upload integration
 async function uploadScreenshot() {
     const fileInput = document.getElementById('screenshotFileInput');
     const status = document.getElementById('screenshotStatus');
@@ -1218,7 +1290,7 @@ async function uploadScreenshot() {
 
     status.className = 'ocr-status info';
     status.style.display = 'flex';
-    status.innerHTML = '<span class="spinner"></span> <span>Reading schedule from image...</span>';
+    status.innerHTML = '<span class="spinner"></span> <span>Reading timetable from screenshot...</span>';
 
     try {
         const response = await fetch('/api/upload', {
@@ -1231,25 +1303,94 @@ async function uploadScreenshot() {
             throw new Error(data.error || 'Failed to process image');
         }
 
+        const courses = data.courses || [];
+        const detectedSlots = data.detectedSlots || [];
+
         status.className = 'ocr-status success';
         status.style.display = 'flex';
-        status.innerHTML = `<span>✓ Image read successfully! Detected ${data.detectedSlots ? data.detectedSlots.length : 0} slot groups.</span>`;
+        status.innerHTML = `<span>✓ Screenshot read successfully! Detected ${courses.length} courses and ${detectedSlots.length} slot options.</span>`;
 
-        if (preview && data.detectedSlots && data.detectedSlots.length > 0) {
+        if (preview) {
             preview.style.display = 'block';
-            preview.innerHTML = `
-                <div style="font-weight:600; font-size:13px; margin-bottom:8px; color:#1e293b;">Detected Slots (Click to Add):</div>
-                <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                    ${data.detectedSlots.map(slot => `
-                        <button class="quick-action-btn" onclick="addDetectedSlot('${escapeHtml(slot)}')">
-                            ➕ ${escapeHtml(slot)}
-                        </button>
-                    `).join('')}
-                </div>
-            `;
+            let previewHtml = '';
+
+            if (courses.length > 0) {
+                previewHtml += `
+                    <div style="font-weight:600; font-size:13px; margin-bottom:10px; color:#1e293b;">
+                        Detected Courses (${courses.length}) — Click slot to add directly:
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:12px;">
+                `;
+
+                courses.forEach((c) => {
+                    const code = c.code || 'COURSE';
+                    const name = c.name || code;
+                    const slots = c.slots || [];
+                    previewHtml += `
+                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <span class="ocr-badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">${escapeHtml(code)}</span>
+                                <span style="font-weight:600; font-size:13px; color:#0f172a;">${escapeHtml(name)}</span>
+                            </div>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                                ${slots.map(s => {
+                                    const key = `SS_${code}_${s}`;
+                                    const isPlaced = placedOcrSlots.has(key);
+                                    return `
+                                        <button class="ocr-add-slot-btn ${isPlaced ? 'placed' : ''}"
+                                                onclick="toggleScreenshotSlot('${escapeHtml(s)}', '${escapeHtml(code)}', '${escapeHtml(name)}', this)">
+                                            ${isPlaced ? '✓ ' + escapeHtml(s) + ' Added' : '➕ ' + escapeHtml(s)}
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                previewHtml += `</div>`;
+            } else if (detectedSlots.length > 0) {
+                previewHtml += `
+                    <div style="font-weight:600; font-size:13px; margin-bottom:8px; color:#1e293b;">
+                        Detected Slots (${detectedSlots.length}) — Click to add:
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                        ${detectedSlots.map(slot => {
+                            const key = `SS_CUSTOM_${slot}`;
+                            const isPlaced = placedOcrSlots.has(key);
+                            return `
+                                <button class="ocr-add-slot-btn ${isPlaced ? 'placed' : ''}"
+                                        onclick="toggleScreenshotSlot('${escapeHtml(slot)}', '', 'Course (${escapeHtml(slot)})', this)">
+                                    ${isPlaced ? '✓ ' + escapeHtml(slot) + ' Added' : '➕ ' + escapeHtml(slot)}
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } else {
+                previewHtml += `
+                    <div style="padding:10px; background:#fff; border-radius:6px; font-size:13px; color:#64748b; border:1px dashed #cbd5e1; margin-bottom:10px;">
+                        No courses or slot patterns found in this screenshot. Please verify image clarity.
+                    </div>
+                `;
+            }
+
+            // Raw OCR preview collapsible
+            if (data.rawText) {
+                previewHtml += `
+                    <details style="margin-top:10px; font-size:12px; color:#64748b;">
+                        <summary style="cursor:pointer; font-weight:600; user-select:none;">
+                            View Extracted Raw Text (${data.lines ? data.lines.length : 0} lines)
+                        </summary>
+                        <pre style="background:#f1f5f9; padding:8px 12px; border-radius:6px; margin-top:6px; white-space:pre-wrap; max-height:160px; overflow-y:auto; font-family:var(--font-mono); font-size:11px; line-height:1.4; border:1px solid #e2e8f0;">${escapeHtml(data.rawText)}</pre>
+                    </details>
+                `;
+            }
+
+            preview.innerHTML = previewHtml;
         }
 
-        showToast('Screenshot parsed successfully!', 'success');
+        showToast('Screenshot read successfully!', 'success');
 
     } catch (err) {
         console.error('Screenshot upload error:', err);
@@ -1260,21 +1401,6 @@ async function uploadScreenshot() {
     }
 }
 
-function addDetectedSlot(slotStr) {
-    const isLab = slotStr.toUpperCase().startsWith('L');
-    if (isLab) {
-        document.getElementById('labCourseName').value = `Course (${slotStr})`;
-        document.getElementById('labSlotInput').value = slotStr;
-        currentLabSlot = slotStr;
-        addLabCourse();
-    } else {
-        document.getElementById('theoryCourseName').value = `Course (${slotStr})`;
-        const slots = slotStr.split('+');
-        const credits = slots.length >= 3 ? 4 : (slots.length === 2 ? 3 : 2);
-        selectedSlot = { slot: slotStr, credits: credits, type: 'theory' };
-        addTheoryCourse();
-    }
-}
 
 // Print Timetable
 function printTimetable() {

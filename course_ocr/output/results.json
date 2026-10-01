@@ -1,155 +1,88 @@
 [
   {
-    "source_file": "AGILE_PROGRAM.pdf",
-    "course_code": "CSE3001",
-    "course_name": "Agile Development Process",
-    "component_type": "Embedded Theory and Project",
+    "source_file": "SWE2009.pdf",
+    "course_code": "SWE2009",
+    "course_name": "Analysis of Algorithms",
+    "component_type": "Embedded Theory",
     "credit": "4.0",
     "theory_slots": [
       {
-        "slot": "F1+TFF1",
-        "venue": "AB2-102",
-        "faculty": "Anurag De",
+        "slot": "A2+TA2",
+        "venue": "CB-520",
+        "faculty": "Prof.SCOPE Dig Crs Faculty-3",
         "flags": []
       },
       {
-        "slot": "F1+TF1",
-        "venue": "CB-512",
-        "faculty": "Khasim Syed",
+        "slot": "A2+TA2",
+        "venue": "CB-521",
+        "faculty": "Prof.SCOPE Dig Crs Faculty-6",
         "flags": []
       },
       {
-        "slot": "D2+TD2",
-        "venue": "CB-324",
-        "faculty": "Anurag De",
-        "flags": []
-      },
-      {
-        "slot": "D2+TDD2",
-        "venue": "AB2-G14",
-        "faculty": "Khasim Syed",
-        "flags": []
-      }
-    ],
-    "lab_slots": [],
-    "needs_ocr": true,
-    "pages": 2,
-    "warnings": [],
-    "error": null,
-    "missing_fields": [],
-    "confidence": "ok"
-  },
-  {
-    "source_file": "FRENCH.pdf",
-    "course_code": "FRL1001",
-    "course_name": "Basic French",
-    "component_type": "Theory Only",
-    "credit": "2.0",
-    "theory_slots": [
-      {
-        "slot": "B1",
-        "venue": "CB-501",
-        "faculty": "RITESH RANJAN",
-        "flags": []
-      },
-      {
-        "slot": "A1",
-        "venue": "AB2-112",
-        "faculty": "RITESH RANJAN",
-        "flags": []
-      },
-      {
-        "slot": "E2",
-        "venue": "AB2-212",
-        "faculty": "RITESH RANJAN",
-        "flags": []
-      },
-      {
-        "slot": "F1",
-        "venue": "CB-315",
-        "faculty": "Dheeraj Kumar",
-        "flags": []
-      },
-      {
-        "slot": "G1",
-        "venue": "AB2-214",
-        "faculty": "Chandan Vishwas",
-        "flags": []
-      },
-      {
-        "slot": "B1",
-        "venue": "CB-504",
-        "faculty": "Dheeraj Kumar",
-        "flags": []
-      },
-      {
-        "slot": "C1",
-        "venue": "AB2-212",
-        "faculty": "Chandan Vishwas",
-        "flags": []
-      },
-      {
-        "slot": "C2",
-        "venue": "CB-113",
-        "faculty": "Dheeraj Kumar",
-        "flags": []
-      }
-    ],
-    "lab_slots": [],
-    "needs_ocr": true,
-    "pages": 1,
-    "warnings": [],
-    "error": null,
-    "missing_fields": [],
-    "confidence": "ok"
-  },
-  {
-    "source_file": "GERMAN.pdf",
-    "course_code": "FRL1005",
-    "course_name": "German for Beginners",
-    "component_type": "Theory Only",
-    "credit": "2.0",
-    "theory_slots": [
-      {
-        "slot": "G2",
-        "venue": "AB2-G17",
-        "faculty": "Prof. VISH Dig Crs Faculty-1",
-        "flags": []
-      },
-      {
-        "slot": "A2",
-        "venue": "AB2-G19",
-        "faculty": "VELMALA SHARATH KUMAR",
-        "flags": []
-      },
-      {
-        "slot": "F2",
-        "venue": "AB2-220",
-        "faculty": "VELMALA SHARATH KUMAR",
-        "flags": []
-      },
-      {
-        "slot": "B2",
+        "slot": "A1+TA1",
         "venue": "CB-423",
-        "faculty": "Prof.VISH Dig Crs Faculty-1",
+        "faculty": "Prof.SCOPE Dig Crs Faculty-6",
         "flags": []
       },
       {
-        "slot": "G1",
-        "venue": "AB2-G17",
-        "faculty": "Renuprasad Hemkiran Patki",
+        "slot": "A1+TA1",
+        "venue": "CB-317",
+        "faculty": "Rajesh Duvvuru",
         "flags": []
       },
       {
-        "slot": "A2",
-        "venue": "AB2-220",
-        "faculty": "Renuprasad Hemkiran Patki",
+        "slot": "A2+TA2",
+        "venue": "CB-523",
+        "faculty": "Bileesh P Babu",
+        "flags": []
+      },
+      {
+        "slot": "A1+TA1",
+        "venue": "CB-425",
+        "faculty": "Bileesh P Babu",
         "flags": []
       }
     ],
-    "lab_slots": [],
+    "lab_slots": [
+      {
+        "slot": "L23+L24",
+        "venue": "CB-307",
+        "faculty": "Prof.SCOPE Dig Crs Faculty-6",
+        "flags": []
+      },
+      {
+        "slot": "L5+L6",
+        "venue": "CB-307",
+        "faculty": "Prof.SCOPE Dig Crs Faculty-6",
+        "flags": []
+      },
+      {
+        "slot": "L9+L10",
+        "venue": "CB-303",
+        "faculty": "Prof.SCOPE Dig Crs Faculty-19",
+        "flags": []
+      },
+      {
+        "slot": "L7+L8",
+        "venue": "CB-321",
+        "faculty": "Bileesh P Babu",
+        "flags": []
+      },
+      {
+        "slot": "L35+L36",
+        "venue": "CB-321",
+        "faculty": "Prof.SCOPE Dig Crs Faculty-19",
+        "flags": []
+      },
+      {
+        "slot": "L43+L44",
+        "venue": "CB-302",
+        "faculty": "Bileesh P Babu",
+        "flags": []
+      }
+    ],
     "needs_ocr": true,
-    "pages": 1,
+    "pages": 3,
     "warnings": [],
     "error": null,
     "missing_fields": [],
