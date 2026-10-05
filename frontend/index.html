@@ -125,48 +125,71 @@
                 <div class="section">
                     <h3>Add Theory Course</h3>
                     <div class="credit-tabs">
-                        <button class="credit-tab active" onclick="switchCreditTab(4)">4 Credits</button>
-                        <button class="credit-tab" onclick="switchCreditTab(3)">3 Credits</button>
-                        <button class="credit-tab" onclick="switchCreditTab(2)">2 Credits</button>
-                        <button class="credit-tab" onclick="switchCreditTab(1)">1 Credit</button>
+                        <button type="button" class="credit-tab active" onclick="switchCreditTab(4)">4 Credits</button>
+                        <button type="button" class="credit-tab" onclick="switchCreditTab(3)">3 Credits</button>
+                        <button type="button" class="credit-tab" onclick="switchCreditTab(2)">2 Credits</button>
+                        <button type="button" class="credit-tab" onclick="switchCreditTab(1)">1 Credit</button>
                     </div>
-                    <div class="course-input">
+                    <form class="course-input" onsubmit="event.preventDefault(); addTheoryCourse();">
                         <div class="input-group">
-                            <label class="input-label">Course Name</label>
+                            <label class="input-label" for="theoryCourseName">Course Name</label>
                             <input type="text" id="theoryCourseName"
-                                placeholder="Enter course name (e.g. Advanced Calculus)">
+                                placeholder="Enter course name (e.g. Advanced Calculus)"
+                                autocomplete="off"
+                                onkeydown="handleCourseNameKeydown(event, 'theory')">
                         </div>
                         <div class="input-group">
-                            <label class="input-label">Select Slot</label>
+                            <label class="input-label" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Select Slot</span>
+                                <span id="selectedTheoryBadge" style="font-size: 11px; font-weight: 600; color: #4f46e5;"></span>
+                            </label>
                             <div class="slot-select" id="theorySlots">
                                 <!-- Slots populated dynamically -->
                             </div>
                         </div>
-                        <button class="btn" onclick="addTheoryCourse()">Add Theory Course</button>
-                    </div>
+                        <button type="submit" class="btn">Add Theory Course</button>
+                    </form>
                 </div>
 
                 <!-- Add Lab Course -->
                 <div class="section">
                     <h3>Add Lab Course</h3>
-                    <div class="course-input">
+                    <div class="credit-tabs" id="labTabs">
+                        <button type="button" class="credit-tab active" onclick="switchLabTab('all')">All Slots</button>
+                        <button type="button" class="credit-tab" onclick="switchLabTab('morning')">Morning</button>
+                        <button type="button" class="credit-tab" onclick="switchLabTab('evening')">Evening</button>
+                    </div>
+                    <form class="course-input" onsubmit="event.preventDefault(); addLabCourse();">
                         <div class="input-group">
-                            <label class="input-label">Lab Course Name</label>
+                            <label class="input-label" for="labCourseName">Lab Course Name</label>
                             <input type="text" id="labCourseName"
-                                placeholder="Enter lab name (e.g. Physics Lab)">
+                                placeholder="Enter lab name (e.g. Physics Lab)"
+                                autocomplete="off"
+                                onkeydown="handleCourseNameKeydown(event, 'lab')">
                         </div>
                         <div class="input-group">
-                            <label class="input-label">Lab Slot (e.g. L1+L2, L31+L32)</label>
-                            <div class="lab-input-container">
+                            <label class="input-label" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Select Lab Slot</span>
+                                <span id="selectedLabBadge" style="font-size: 11px; font-weight: 600; color: #9333ea;"></span>
+                            </label>
+                            
+                            <!-- Search / Custom slot filter bar -->
+                            <div class="slot-search-wrapper">
+                                <span class="slot-search-icon">🔍</span>
                                 <input type="text" id="labSlotInput" class="lab-slot-input"
-                                    placeholder="Type lab slot code" onkeyup="handleLabSlotInput()"
-                                    onfocus="showLabSuggestions()" onblur="hideLabSuggestions()">
-                                <div id="labSuggestions" class="lab-suggestions"></div>
+                                    placeholder="Filter or type slot (e.g. L1+L2)..."
+                                    oninput="handleLabSlotInput()"
+                                    onkeydown="handleLabSlotKeydown(event)"
+                                    autocomplete="off">
+                            </div>
+
+                            <div class="slot-select" id="labSlots">
+                                <!-- Lab slot options populated dynamically -->
                             </div>
                             <div id="labInputValidation" class="input-validation"></div>
                         </div>
-                        <button class="btn" onclick="addLabCourse()">Add Lab Course</button>
-                    </div>
+                        <button type="submit" class="btn">Add Lab Course</button>
+                    </form>
                 </div>
 
                 <!-- Selected Courses -->
@@ -197,57 +220,50 @@
                         Weekly Timetable
                     </div>
                     <div class="timetable-quick-actions">
-                        <button class="quick-action-btn" onclick="printTimetable()">
+                        <button type="button" class="quick-action-btn" onclick="printTimetable()">
                             Print Timetable
                         </button>
-                        <button class="quick-action-btn" onclick="clearAll()" style="color:#dc2626;">
+                        <button type="button" class="quick-action-btn" onclick="clearAll()" style="color:#dc2626;">
                             Clear All
                         </button>
                     </div>
                 </div>
 
-                <table class="timetable">
-                    <thead>
+                <div class="timetable-scroll-wrap">
+                    <table class="timetable">
+                        <thead>
+                        <!-- THEORY TIMINGS (FIRST) -->
                         <tr>
-                            <th rowspan="2" style="width: 50px;">Day</th>
-                            <th class="time-header">8:00-8:50</th>
-                            <th class="time-header">9:00-9:50</th>
-                            <th class="time-header">10:00-10:50</th>
-                            <th class="time-header">11:00-11:50</th>
-                            <th class="time-header">12:00-12:50</th>
-                            <th rowspan="3" class="lunch-break">LUNCH</th>
-                            <th class="time-header">2:00-2:50</th>
-                            <th class="time-header">3:00-3:50</th>
-                            <th class="time-header">4:00-4:50</th>
-                            <th class="time-header">5:00-5:50</th>
-                            <th class="time-header">6:00-6:50</th>
-                            <th class="time-header">6:50-7:30</th>
+                            <th class="day-label theory-header-corner" title="Theory Class Timings">THEORY</th>
+                            <th class="time-header theory-time-header">8:00-8:50</th>
+                            <th class="time-header theory-time-header">9:00-9:50</th>
+                            <th class="time-header theory-time-header">10:00-10:50</th>
+                            <th class="time-header theory-time-header">11:00-11:50</th>
+                            <th class="time-header theory-time-header">12:00-12:50</th>
+                            <th class="time-header theory-time-header" style="color: #64748b;">—</th>
+                            <th rowspan="2" class="lunch-break">LUNCH</th>
+                            <th class="time-header theory-time-header">2:00-2:50</th>
+                            <th class="time-header theory-time-header">3:00-3:50</th>
+                            <th class="time-header theory-time-header">4:00-4:50</th>
+                            <th class="time-header theory-time-header">5:00-5:50</th>
+                            <th class="time-header theory-time-header">6:00-6:50</th>
+                            <th class="time-header theory-time-header" style="color: #64748b;">—</th>
                         </tr>
+                        <!-- LAB TIMINGS (BELOW THEORY) -->
                         <tr>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                            <th style="background: #f8fafc; color: #64748b; font-size: 9px; font-weight:600;">THEORY</th>
-                        </tr>
-                        <tr>
-                            <th style="background: transparent; border:none;"></th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
-                            <th style="background: #f1f5f9; color: #64748b; font-size: 9px; font-weight:600;">LAB</th>
+                            <th class="day-label lab-header-corner" title="Lab Class Timings">LAB</th>
+                            <th class="time-header lab-time-header">8:00-8:50</th>
+                            <th class="time-header lab-time-header">8:50-9:40</th>
+                            <th class="time-header lab-time-header">9:50-10:40</th>
+                            <th class="time-header lab-time-header">10:40-11:30</th>
+                            <th class="time-header lab-time-header">11:40-12:30</th>
+                            <th class="time-header lab-time-header">12:30-1:10</th>
+                            <th class="time-header lab-time-header">2:00-2:50</th>
+                            <th class="time-header lab-time-header">2:50-3:40</th>
+                            <th class="time-header lab-time-header">3:50-4:40</th>
+                            <th class="time-header lab-time-header">4:40-5:30</th>
+                            <th class="time-header lab-time-header">5:40-6:30</th>
+                            <th class="time-header lab-time-header">6:30-7:10</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -259,12 +275,14 @@
                             <td class="slot-cell theory-cell" data-day="TUE" data-period="2" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="TUE" data-period="3" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="TUE" data-period="4" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="TUE" data-period="5" data-type="theory"></td>
                             <td class="lunch-break" rowspan="2">LUNCH</td>
                             <td class="slot-cell theory-cell" data-day="TUE" data-period="6" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="TUE" data-period="7" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="TUE" data-period="8" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="TUE" data-period="9" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="TUE" data-period="10" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="TUE" data-period="11" data-type="theory"></td>
                         </tr>
                         <tr>
                             <td class="day-label" style="background:#1e293b !important; font-size:9px; color:#94a3b8 !important;">LAB</td>
@@ -273,6 +291,7 @@
                             <td class="slot-cell lab-cell" data-day="TUE" data-period="2" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="TUE" data-period="3" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="TUE" data-period="4" data-type="lab"></td>
+                            <td class="slot-cell lab-cell" data-day="TUE" data-period="5" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="TUE" data-period="6" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="TUE" data-period="7" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="TUE" data-period="8" data-type="lab"></td>
@@ -289,12 +308,14 @@
                             <td class="slot-cell theory-cell" data-day="WED" data-period="2" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="WED" data-period="3" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="WED" data-period="4" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="WED" data-period="5" data-type="theory"></td>
                             <td class="lunch-break" rowspan="2">LUNCH</td>
                             <td class="slot-cell theory-cell" data-day="WED" data-period="6" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="WED" data-period="7" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="WED" data-period="8" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="WED" data-period="9" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="WED" data-period="10" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="WED" data-period="11" data-type="theory"></td>
                         </tr>
                         <tr>
                             <td class="day-label" style="background:#1e293b !important; font-size:9px; color:#94a3b8 !important;">LAB</td>
@@ -303,6 +324,7 @@
                             <td class="slot-cell lab-cell" data-day="WED" data-period="2" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="WED" data-period="3" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="WED" data-period="4" data-type="lab"></td>
+                            <td class="slot-cell lab-cell" data-day="WED" data-period="5" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="WED" data-period="6" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="WED" data-period="7" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="WED" data-period="8" data-type="lab"></td>
@@ -319,12 +341,14 @@
                             <td class="slot-cell theory-cell" data-day="THU" data-period="2" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="THU" data-period="3" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="THU" data-period="4" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="THU" data-period="5" data-type="theory"></td>
                             <td class="lunch-break" rowspan="2">LUNCH</td>
                             <td class="slot-cell theory-cell" data-day="THU" data-period="6" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="THU" data-period="7" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="THU" data-period="8" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="THU" data-period="9" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="THU" data-period="10" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="THU" data-period="11" data-type="theory"></td>
                         </tr>
                         <tr>
                             <td class="day-label" style="background:#1e293b !important; font-size:9px; color:#94a3b8 !important;">LAB</td>
@@ -333,6 +357,7 @@
                             <td class="slot-cell lab-cell" data-day="THU" data-period="2" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="THU" data-period="3" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="THU" data-period="4" data-type="lab"></td>
+                            <td class="slot-cell lab-cell" data-day="THU" data-period="5" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="THU" data-period="6" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="THU" data-period="7" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="THU" data-period="8" data-type="lab"></td>
@@ -349,12 +374,14 @@
                             <td class="slot-cell theory-cell" data-day="FRI" data-period="2" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="FRI" data-period="3" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="FRI" data-period="4" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="FRI" data-period="5" data-type="theory"></td>
                             <td class="lunch-break" rowspan="2">LUNCH</td>
                             <td class="slot-cell theory-cell" data-day="FRI" data-period="6" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="FRI" data-period="7" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="FRI" data-period="8" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="FRI" data-period="9" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="FRI" data-period="10" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="FRI" data-period="11" data-type="theory"></td>
                         </tr>
                         <tr>
                             <td class="day-label" style="background:#1e293b !important; font-size:9px; color:#94a3b8 !important;">LAB</td>
@@ -363,6 +390,7 @@
                             <td class="slot-cell lab-cell" data-day="FRI" data-period="2" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="FRI" data-period="3" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="FRI" data-period="4" data-type="lab"></td>
+                            <td class="slot-cell lab-cell" data-day="FRI" data-period="5" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="FRI" data-period="6" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="FRI" data-period="7" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="FRI" data-period="8" data-type="lab"></td>
@@ -379,12 +407,14 @@
                             <td class="slot-cell theory-cell" data-day="SAT" data-period="2" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="SAT" data-period="3" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="SAT" data-period="4" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="SAT" data-period="5" data-type="theory"></td>
                             <td class="lunch-break" rowspan="2">LUNCH</td>
                             <td class="slot-cell theory-cell" data-day="SAT" data-period="6" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="SAT" data-period="7" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="SAT" data-period="8" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="SAT" data-period="9" data-type="theory"></td>
                             <td class="slot-cell theory-cell" data-day="SAT" data-period="10" data-type="theory"></td>
+                            <td class="slot-cell theory-cell" data-day="SAT" data-period="11" data-type="theory"></td>
                         </tr>
                         <tr>
                             <td class="day-label" style="background:#1e293b !important; font-size:9px; color:#94a3b8 !important;">LAB</td>
@@ -393,6 +423,7 @@
                             <td class="slot-cell lab-cell" data-day="SAT" data-period="2" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="SAT" data-period="3" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="SAT" data-period="4" data-type="lab"></td>
+                            <td class="slot-cell lab-cell" data-day="SAT" data-period="5" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="SAT" data-period="6" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="SAT" data-period="7" data-type="lab"></td>
                             <td class="slot-cell lab-cell" data-day="SAT" data-period="8" data-type="lab"></td>
@@ -402,6 +433,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </section>
         </main>
     </div>
